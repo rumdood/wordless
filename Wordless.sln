@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F85E2B80-A771-4559-9F70-7379D03E3788}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wordless", "src\wordless\wordless.csproj", "{634E3FE1-A28E-427F-A8F5-E5884C55CE26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1590432A-3844-4D02-8084-2F2C83235B4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wordless.tests", "tests\wordless.tests\wordless.tests.csproj", "{2C455259-90F3-41C0-BFA5-67CCED8C5B84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{634E3FE1-A28E-427F-A8F5-E5884C55CE26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{634E3FE1-A28E-427F-A8F5-E5884C55CE26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{634E3FE1-A28E-427F-A8F5-E5884C55CE26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{634E3FE1-A28E-427F-A8F5-E5884C55CE26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C455259-90F3-41C0-BFA5-67CCED8C5B84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C455259-90F3-41C0-BFA5-67CCED8C5B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C455259-90F3-41C0-BFA5-67CCED8C5B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C455259-90F3-41C0-BFA5-67CCED8C5B84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{634E3FE1-A28E-427F-A8F5-E5884C55CE26} = {F85E2B80-A771-4559-9F70-7379D03E3788}
+		{2C455259-90F3-41C0-BFA5-67CCED8C5B84} = {1590432A-3844-4D02-8084-2F2C83235B4C}
+	EndGlobalSection
+EndGlobal
