@@ -22,9 +22,9 @@ public class WordlessTests
         {
             "cat", "dog", new List<WordlessResult>
             {
-                new('d', CharacterState.NotPresent),
-                new('o', CharacterState.NotPresent),
-                new('g', CharacterState.NotPresent)
+                new('D', CharacterState.NotPresent),
+                new('O', CharacterState.NotPresent),
+                new('G', CharacterState.NotPresent)
             }
         };
 
@@ -32,9 +32,9 @@ public class WordlessTests
         {
             "cat", "cat", new List<WordlessResult>
             {
-                new('c', CharacterState.Correct),
-                new('a', CharacterState.Correct),
-                new('t', CharacterState.Correct)
+                new('C', CharacterState.Correct),
+                new('A', CharacterState.Correct),
+                new('T', CharacterState.Correct)
             }
         };
 
@@ -42,12 +42,32 @@ public class WordlessTests
         {
             "saddle", "sullen", new List<WordlessResult>
             {
-                new('s', CharacterState.Correct),
-                new('u', CharacterState.NotPresent),
-                new('l', CharacterState.PresentWrongSpot),
-                new('l', CharacterState.PresentWrongSpot),
-                new('e', CharacterState.PresentWrongSpot),
-                new('n', CharacterState.NotPresent)
+                new('S', CharacterState.Correct),
+                new('U', CharacterState.NotPresent),
+                new('L', CharacterState.PresentWrongSpot),
+                new('L', CharacterState.PresentWrongSpot),
+                new('E', CharacterState.PresentWrongSpot),
+                new('N', CharacterState.NotPresent)
+            }
+        };
+
+        yield return new object[]
+        {
+            "CAT", "cat", new List<WordlessResult>
+            {
+                new('C', CharacterState.Correct),
+                new('A', CharacterState.Correct),
+                new('T', CharacterState.Correct)
+            }
+        };
+
+        yield return new object[]
+        {
+            "cat", "CAT", new List<WordlessResult>
+            {
+                new('C', CharacterState.Correct),
+                new('A', CharacterState.Correct),
+                new('T', CharacterState.Correct)
             }
         };
     }

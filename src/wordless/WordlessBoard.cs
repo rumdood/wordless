@@ -25,7 +25,7 @@ public class WordlessBoard
 
         for (int i = 0; i < word.Length; i++)
         {
-            var currentChar = word[i];
+            var currentChar = char.ToUpperInvariant(word[i]);
             if (!storage.ContainsKey(currentChar))
             {
                 storage[currentChar] = new HashSet<int>();
@@ -54,12 +54,13 @@ public class WordlessBoard
         for (int guessIndex = 0; guessIndex < guess.Length; guessIndex++)
         {
             var result = CharacterState.NotPresent;
-            if (_word.TryGetValue(guess[guessIndex], out var positions))
+            var currentGuessChar = char.ToUpperInvariant(guess[guessIndex]);
+            if (_word.TryGetValue(currentGuessChar, out var positions))
             {
                 result = positions.Contains(guessIndex) ? CharacterState.Correct : CharacterState.PresentWrongSpot;
             }
 
-            var characterResult = new WordlessResult(guess[guessIndex], result);
+            var characterResult = new WordlessResult(currentGuessChar, result);
             currentAttempt.AddCharacterResult(characterResult);
         }
 
@@ -71,7 +72,7 @@ public class WordlessBoard
 public class WordlessAttempt
 {
     private readonly List<WordlessResult> _results;
-    public string Guess { get; private set; }
+    public string Guess { get; }
 
     public IEnumerable<WordlessResult> Result => _results;
 
