@@ -6,11 +6,10 @@ public class WordlessBoard
     private readonly HashSet<string> _possibleGuesses;
     private readonly Dictionary<char, HashSet<int>> _word;
     private readonly List<WordlessAttempt> _attempts;
-    private readonly int _maxLength;
     public int MaxAttempts { get; private set; }
     
-    public WordlessBoard(string[] possibleWords, 
-        string[] possibleGuesses, 
+    public WordlessBoard(IReadOnlyList<string> possibleWords, 
+        IEnumerable<string> possibleGuesses, 
         string word = "",
         int maxAttempts = 6)
     {
@@ -20,7 +19,7 @@ public class WordlessBoard
         if (string.IsNullOrEmpty(word))
         {
             var rnd = new Random();
-            word = possibleWords[rnd.Next(0, possibleWords.Length - 1)];
+            word = possibleWords[rnd.Next(0, possibleWords.Count - 1)];
         }
 
         if (word.Any(char.IsLower))
@@ -34,10 +33,7 @@ public class WordlessBoard
         }
         
         _possibleGuesses = new HashSet<string>(possibleWords.Union(possibleGuesses));
-
-        _maxLength = word.Length;
         _attempts = new List<WordlessAttempt>(MaxAttempts);
-
         _word = SetWord(word);
     }
 
@@ -63,17 +59,21 @@ public class WordlessBoard
 
     public WordlessAttempt MakeGuess(string guess)
     {
+        var currentAttempt = new WordlessAttempt(guess);
+
         if (_attempts.Count == MaxAttempts)
         {
-            throw new InvalidOperationException("Too many attempts");
-        }
-        
-        if (guess.Length != _maxLength)
-        {
-            throw new InvalidOperationException("Word not correct size");
+            currentAttempt.Status = AttemptStatus.Error;
+            return currentAttempt;
         }
 
-        var currentAttempt = new WordlessAttempt(guess);
+        if (!_possibleGuesses.Contains(currentAttempt.Guess))
+        {
+            currentAttempt.Status = AttemptStatus.GuessNotAllowed;
+            return currentAttempt;
+        }
+
+        currentAttempt.Status = AttemptStatus.ValidAttempt;
 
         for (int guessIndex = 0; guessIndex < guess.Length; guessIndex++)
         {
