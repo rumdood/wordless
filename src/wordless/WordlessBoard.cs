@@ -75,10 +75,10 @@ public class WordlessBoard
 
         currentAttempt.Status = AttemptStatus.ValidAttempt;
 
-        for (int guessIndex = 0; guessIndex < guess.Length; guessIndex++)
+        for (int guessIndex = 0; guessIndex < currentAttempt.Guess.Length; guessIndex++)
         {
             var result = CharacterState.NotPresent;
-            var currentGuessChar = char.ToUpperInvariant(guess[guessIndex]);
+            var currentGuessChar = currentAttempt.Guess[guessIndex];
             if (_word.TryGetValue(currentGuessChar, out var positions))
             {
                 result = positions.Contains(guessIndex) ? CharacterState.Correct : CharacterState.PresentWrongSpot;

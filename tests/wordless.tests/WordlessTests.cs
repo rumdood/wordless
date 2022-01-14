@@ -6,8 +6,8 @@ namespace Wordless.tests;
 
 public class WordlessTests
 {
-    public static string[] PossibleWords = new[] {"CAT", "DOG", "SADDLE", "SULLEN"};
-    public static string[] PossibleGuesses = new[] {"COW", "PUDDLE"};
+    public static string[] PossibleWords = new[] {"CAT", "DOG", "SADDLE", "SULLEN", "OWING"};
+    public static string[] PossibleGuesses = new[] {"COW", "PUDDLE", "GOING"};
     
     [Theory]
     [MemberData(nameof(GetWordsAndGuesses))]
@@ -71,6 +71,18 @@ public class WordlessTests
                 new('C', CharacterState.Correct),
                 new('A', CharacterState.Correct),
                 new('T', CharacterState.Correct)
+            }
+        };
+        
+        yield return new object[]
+        {
+            "owing", "going", new List<WordlessResult>
+            {
+                new('G', CharacterState.NotPresent),
+                new('O', CharacterState.PresentWrongSpot),
+                new('I', CharacterState.Correct),
+                new('N', CharacterState.Correct),
+                new('G', CharacterState.Correct)
             }
         };
     }
