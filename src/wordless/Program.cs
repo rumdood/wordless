@@ -1,34 +1,47 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Dynamic;
+using System.Text.Json;
 using Wordless;
-const ConsoleColor DefaultForeColor = ConsoleColor.White;
-const ConsoleColor DefaultBackColor = ConsoleColor.Black;
+const ConsoleColor defaultForeColor = ConsoleColor.White;
+const ConsoleColor defaultBackColor = ConsoleColor.Black;
 
-Console.ForegroundColor = DefaultForeColor;
-Console.BackgroundColor = DefaultBackColor;
+Console.ForegroundColor = defaultForeColor;
+Console.BackgroundColor = defaultBackColor;
 
 Console.WriteLine("Welcome to worthless wordless");
 
-int maxAttempts = GetNumericInputFromUser(6, "Maximum Tries");
+var maxAttempts = GetNumericInputFromUser(6, "Maximum Tries");
 
 var word = "";
 
-while (string.IsNullOrEmpty(word))
-{
-    Console.Write("Set the word:");
-    word = Console.ReadLine();
-}
+Console.Write("Set the word (leave blank for random):");
+word = Console.ReadLine() ?? "";
 
-var board = new WordlessBoard(word, maxAttempts);
+Console.WriteLine("Loading word lists");
 
-Console.WriteLine("OK, this is totally dumb because you know the word, but let's play anyway");
+var wordLists = GetWordsFromFile("words.json");
 
-bool success = false;
+var board = new WordlessBoard(possibleWords: wordLists.possibleWords, 
+    possibleGuesses: wordLists.possibleGuesses,
+    word: word,
+    maxAttempts: maxAttempts);
+
+Console.WriteLine("LET'S PLAY");
+
+var success = false;
 
 while (board.History.Length < maxAttempts)
 {
     Console.Write("Enter your guess:");
     var guess = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(guess))
+    {
+        Console.WriteLine("You can't guess blank");
+        continue;
+    }
+    
     var currentAttempt = board.MakeGuess(guess);
 
     foreach (var attempt in board.History)
@@ -41,33 +54,28 @@ while (board.History.Length < maxAttempts)
     {
         success = true;
 
-        for (int att = board.History.Length; att < maxAttempts; att++)
+        for (var att = board.History.Length; att < maxAttempts; att++)
         {
             Console.BackgroundColor = ConsoleColor.Green;
-            foreach (var c in guess)
+            for (var i=0; i<guess.Length; i++)
             {
                 Console.Write(" ");
             }
             Console.WriteLine();
         }
 
-        Console.BackgroundColor = DefaultBackColor;
+        Console.BackgroundColor = defaultBackColor;
         break;
     }
 }
 
-if (success)
-{
-    Console.WriteLine($"Congratulations! You solved it in {board.History.Length} tries!");
-}
-else
-{
-    Console.WriteLine($"Better luck next time! The word was {word}");
-}
+Console.WriteLine(success
+    ? $"Congratulations! You solved it in {board.History.Length} tries!"
+    : $"Better luck next time! The word was {word}");
 
 static int GetNumericInputFromUser(int defaultValue, string prompt)
 {
-    int currentValue = 0;
+    var currentValue = 0;
     while (currentValue == 0)
     {
         Console.Write($"{prompt} (default {defaultValue}):");
@@ -79,11 +87,13 @@ static int GetNumericInputFromUser(int defaultValue, string prompt)
         }
         else
         {
-            if (!int.TryParse(response, out currentValue))
+            if (int.TryParse(response, out currentValue))
             {
-                currentValue = 0;
-                Console.WriteLine("Please enter a valid number greater than zero or accept the default by pressing enter");
+                continue;
             }
+            
+            currentValue = 0;
+            Console.WriteLine("Please enter a valid number greater than zero or accept the default by pressing enter");
         }
     }
 
@@ -105,7 +115,25 @@ static void PrintResult(WordlessAttempt attempt)
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = color;
         Console.Write($"{key}");
-        Console.BackgroundColor = DefaultBackColor;
-        Console.ForegroundColor = DefaultForeColor;
+        Console.BackgroundColor = defaultBackColor;
+        Console.ForegroundColor = defaultForeColor;
     }
+}
+
+static WordLists GetWordsFromFile(string path)
+{
+    if (!File.Exists(path))
+    {
+        throw new FileNotFoundException();
+    }
+    
+    var json = File.ReadAllText(path);
+    var lists = JsonSerializer.Deserialize<WordLists>(json);
+    return lists ?? throw new InvalidOperationException("No word lists found");
+}
+
+internal class WordLists
+{
+    public string[] possibleWords { get; set; }
+    public string[] possibleGuesses { get; set; }
 }

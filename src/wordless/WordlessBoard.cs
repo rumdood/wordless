@@ -2,14 +2,38 @@ namespace Wordless;
 
 public class WordlessBoard
 {
+    private readonly HashSet<string> _possibleWords;
+    private readonly HashSet<string> _possibleGuesses;
     private readonly Dictionary<char, HashSet<int>> _word;
     private readonly List<WordlessAttempt> _attempts;
     private readonly int _maxLength;
     public int MaxAttempts { get; private set; }
-
-    public WordlessBoard(string word, int maxAttempts = 6)
+    
+    public WordlessBoard(string[] possibleWords, 
+        string[] possibleGuesses, 
+        string word = "",
+        int maxAttempts = 6)
     {
         MaxAttempts = maxAttempts;
+        _possibleWords = new HashSet<string>(possibleWords);
+
+        if (string.IsNullOrEmpty(word))
+        {
+            var rnd = new Random();
+            word = possibleWords[rnd.Next(0, possibleWords.Length - 1)];
+        }
+
+        if (word.Any(char.IsLower))
+        {
+            word = word.ToUpper();
+        }
+
+        if (!_possibleWords.Contains(word))
+        {
+            throw new InvalidOperationException("Your word isn't even in your own dictionary");
+        }
+        
+        _possibleGuesses = new HashSet<string>(possibleWords.Union(possibleGuesses));
 
         _maxLength = word.Length;
         _attempts = new List<WordlessAttempt>(MaxAttempts);
@@ -17,7 +41,7 @@ public class WordlessBoard
         _word = SetWord(word);
     }
 
-    public WordlessAttempt[] History => _attempts.ToArray(); 
+    public WordlessAttempt[] History => _attempts.ToArray();
 
     private static Dictionary<char, HashSet<int>> SetWord(string word)
     {

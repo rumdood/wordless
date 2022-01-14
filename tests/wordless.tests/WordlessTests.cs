@@ -6,11 +6,14 @@ namespace Wordless.tests;
 
 public class WordlessTests
 {
+    public static string[] PossibleWords = new[] {"CAT", "DOG", "SADDLE", "SULLEN"};
+    public static string[] PossibleGuesses = new[] {"COW", "PUDDLE"};
+    
     [Theory]
     [MemberData(nameof(GetWordsAndGuesses))]
     public void CharacterResultsPerAttemptAreCorrect(string word, string guess, IEnumerable<WordlessResult> expectedResults)
     {
-        var board = new WordlessBoard(word);
+        var board = new WordlessBoard(PossibleWords, PossibleGuesses, word);
 
         var attempt = board.MakeGuess(guess);
         Assert.Equal(expectedResults, attempt.Result);
