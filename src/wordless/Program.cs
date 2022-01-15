@@ -102,9 +102,9 @@ static int GetNumericInputFromUser(int defaultValue, string prompt)
 
 static void PrintResult(WordlessAttempt attempt)
 {
-    foreach (var (key, value) in attempt.Result)
+    foreach (var f in attempt.Result)
     {
-        var color = value switch
+        var color = f.State switch
         {
             CharacterState.NotPresent => ConsoleColor.Gray,
             CharacterState.PresentWrongSpot => ConsoleColor.Yellow,
@@ -114,7 +114,7 @@ static void PrintResult(WordlessAttempt attempt)
 
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = color;
-        Console.Write($"{key}");
+        Console.Write($"{f.Character}");
         Console.BackgroundColor = defaultBackColor;
         Console.ForegroundColor = defaultForeColor;
     }

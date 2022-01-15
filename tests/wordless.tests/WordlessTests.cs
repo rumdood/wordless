@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Wordless.tests;
@@ -11,12 +12,17 @@ public class WordlessTests
     
     [Theory]
     [MemberData(nameof(GetWordsAndGuesses))]
-    public void CharacterResultsPerAttemptAreCorrect(string word, string guess, IEnumerable<WordlessResult> expectedResults)
+    public void CharacterResultsPerAttemptAreCorrect(string word, string guess, IList<WordlessResult> expectedResults)
     {
         var board = new WordlessBoard(PossibleWords, PossibleGuesses, word);
 
         var attempt = board.MakeGuess(guess);
-        Assert.Equal(expectedResults, attempt.Result);
+
+        for (int i = 0; i < expectedResults.Count; i++)
+        {
+            Assert.Equal(expectedResults[i].Character, attempt.Result.ElementAt(i).Character);
+            Assert.Equal(expectedResults[i].State, attempt.Result.ElementAt(i).State);
+        }
     }
 
     public static IEnumerable<object[]> GetWordsAndGuesses()
@@ -48,7 +54,7 @@ public class WordlessTests
                 new('S', CharacterState.Correct),
                 new('U', CharacterState.NotPresent),
                 new('L', CharacterState.PresentWrongSpot),
-                new('L', CharacterState.PresentWrongSpot),
+                new('L', CharacterState.NotPresent),
                 new('E', CharacterState.PresentWrongSpot),
                 new('N', CharacterState.NotPresent)
             }

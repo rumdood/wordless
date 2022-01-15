@@ -34,12 +34,12 @@ public class WordlessBoard
         
         _possibleGuesses = new HashSet<string>(possibleWords.Union(possibleGuesses));
         _attempts = new List<WordlessAttempt>(MaxAttempts);
-        _word = SetWord(word);
+        _word = ChopWord(word);
     }
 
     public WordlessAttempt[] History => _attempts.ToArray();
 
-    private static Dictionary<char, HashSet<int>> SetWord(string word)
+    private static Dictionary<char, HashSet<int>> ChopWord(string word)
     {
         var storage = new Dictionary<char, HashSet<int>>(word.Length);
 
@@ -75,6 +75,35 @@ public class WordlessBoard
 
         currentAttempt.Status = AttemptStatus.ValidAttempt;
 
+        var choppedGuess = ChopWord(currentAttempt.Guess);
+
+        foreach (var guessCharacter in choppedGuess)
+        {
+            if (_word.TryGetValue(guessCharacter.Key, out var wordPositions))
+            {
+                var exacts = guessCharacter.Value.Where(x => wordPositions.Contains(x));
+                var partials = guessCharacter.Value.Where(x => !wordPositions.Contains(x));
+
+                var remaining = wordPositions.Count;
+
+                foreach (var entry in exacts)
+                {
+                    currentAttempt.SetCharacterResult(entry, CharacterState.Correct);
+                    --remaining;
+                }
+
+                foreach (var entry in partials)
+                {
+                    var state = remaining-- > 0 ? CharacterState.PresentWrongSpot : CharacterState.NotPresent;
+                    currentAttempt.SetCharacterResult(entry, state);
+                }
+            }
+        }
+
+        /*
+        var letterCount = new Dictionary<char, int>();
+        var resultCache = new List<WordlessResult>();
+
         for (int guessIndex = 0; guessIndex < currentAttempt.Guess.Length; guessIndex++)
         {
             var result = CharacterState.NotPresent;
@@ -82,11 +111,21 @@ public class WordlessBoard
             if (_word.TryGetValue(currentGuessChar, out var positions))
             {
                 result = positions.Contains(guessIndex) ? CharacterState.Correct : CharacterState.PresentWrongSpot;
-            }
 
+                if (!letterCount.ContainsKey(currentGuessChar))
+                {
+                    letterCount[currentGuessChar] = 0;
+                }
+
+                letterCount[currentGuessChar]++;
+            }
+            
             var characterResult = new WordlessResult(currentGuessChar, result);
-            currentAttempt.AddCharacterResult(characterResult);
+            resultCache.Add(characterResult);
         }
+        
+        //currentAttempt.AddCharacterResult(characterResult);
+        */
 
         _attempts.Add(currentAttempt);
         return currentAttempt;
