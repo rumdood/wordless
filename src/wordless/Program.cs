@@ -107,8 +107,8 @@ static void PrintResult(WordlessAttempt attempt)
         var color = f.State switch
         {
             CharacterState.NotPresent => ConsoleColor.Gray,
-            CharacterState.PresentWrongSpot => ConsoleColor.Yellow,
-            CharacterState.Correct => ConsoleColor.Green,
+            CharacterState.PresentWrongSpot => ConsoleColor.DarkYellow,
+            CharacterState.Correct => ConsoleColor.DarkGreen,
             _ => throw new InvalidOperationException("What?")
         };
 
