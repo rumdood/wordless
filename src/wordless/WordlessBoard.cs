@@ -6,11 +6,10 @@ public class WordlessBoard
     private readonly HashSet<string> _possibleGuesses;
     private readonly Dictionary<char, HashSet<int>> _word;
     private readonly List<WordlessAttempt> _attempts;
-    private readonly int _maxLength;
     public int MaxAttempts { get; private set; }
     
-    public WordlessBoard(string[] possibleWords, 
-        string[] possibleGuesses, 
+    public WordlessBoard(IReadOnlyList<string> possibleWords, 
+        IEnumerable<string> possibleGuesses, 
         string word = "",
         int maxAttempts = 6)
     {
@@ -20,30 +19,29 @@ public class WordlessBoard
         if (string.IsNullOrEmpty(word))
         {
             var rnd = new Random();
-            word = possibleWords[rnd.Next(0, possibleWords.Length - 1)];
+            word = possibleWords[rnd.Next(0, possibleWords.Count - 1)];
         }
-
-        if (word.Any(char.IsLower))
+        else
         {
-            word = word.ToUpper();
+            if (word.Any(char.IsLower))
+            {
+                word = word.ToUpper();
+            }
+
+            if (!_possibleWords.Contains(word))
+            {
+                throw new InvalidOperationException("Your word isn't even in your own dictionary");
+            }
         }
 
-        if (!_possibleWords.Contains(word))
-        {
-            throw new InvalidOperationException("Your word isn't even in your own dictionary");
-        }
-        
-        _possibleGuesses = new HashSet<string>(possibleWords.Union(possibleGuesses));
-
-        _maxLength = word.Length;
+        _possibleGuesses = new HashSet<string>(possibleGuesses);
         _attempts = new List<WordlessAttempt>(MaxAttempts);
-
-        _word = SetWord(word);
+        _word = ChopWord(word);
     }
 
     public WordlessAttempt[] History => _attempts.ToArray();
 
-    private static Dictionary<char, HashSet<int>> SetWord(string word)
+    private static Dictionary<char, HashSet<int>> ChopWord(string word)
     {
         var storage = new Dictionary<char, HashSet<int>>(word.Length);
 
@@ -63,29 +61,55 @@ public class WordlessBoard
 
     public WordlessAttempt MakeGuess(string guess)
     {
-        if (_attempts.Count == MaxAttempts)
-        {
-            throw new InvalidOperationException("Too many attempts");
-        }
-        
-        if (guess.Length != _maxLength)
-        {
-            throw new InvalidOperationException("Word not correct size");
-        }
-
         var currentAttempt = new WordlessAttempt(guess);
 
-        for (int guessIndex = 0; guessIndex < guess.Length; guessIndex++)
+        if (_attempts.Count == MaxAttempts)
         {
-            var result = CharacterState.NotPresent;
-            var currentGuessChar = char.ToUpperInvariant(guess[guessIndex]);
-            if (_word.TryGetValue(currentGuessChar, out var positions))
+            currentAttempt.Status = AttemptStatus.Error;
+            return currentAttempt;
+        }
+
+        if (!_possibleWords.Contains(currentAttempt.Guess) &&
+            !_possibleGuesses.Contains(currentAttempt.Guess))
+        {
+            currentAttempt.Status = AttemptStatus.GuessNotAllowed;
+            return currentAttempt;
+        }
+
+        currentAttempt.Status = AttemptStatus.ValidAttempt;
+        var counts = new Dictionary<char, int>();
+
+        foreach (var (key, value) in _word)
+        {
+            counts[key] = value.Count;
+        }
+
+        for (int i = 0; i < currentAttempt.Guess.Length; i++)
+        {
+            if (!_word.TryGetValue(currentAttempt.Guess[i], out var wordPositions))
             {
-                result = positions.Contains(guessIndex) ? CharacterState.Correct : CharacterState.PresentWrongSpot;
+                continue;
             }
 
-            var characterResult = new WordlessResult(currentGuessChar, result);
-            currentAttempt.AddCharacterResult(characterResult);
+            if (wordPositions.Contains(i))
+            {
+                currentAttempt.SetCharacterResult(i, CharacterState.Correct);
+                counts[currentAttempt.Guess[i]] -= 1;
+            }
+        }
+        
+        for (int i = 0; i < currentAttempt.Guess.Length; i++)
+        {
+            if (!_word.TryGetValue(currentAttempt.Guess[i], out var wordPositions))
+            {
+                continue;
+            }
+
+            if (counts[currentAttempt.Guess[i]] > 0 && !wordPositions.Contains(i))
+            {
+                currentAttempt.SetCharacterResult(i, CharacterState.PresentWrongSpot);
+                counts[currentAttempt.Guess[i]] -= 1;
+            }
         }
 
         _attempts.Add(currentAttempt);
