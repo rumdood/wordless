@@ -34,7 +34,7 @@ public class WordlessBoard
             }
         }
 
-        _possibleGuesses = new HashSet<string>(possibleWords.Union(possibleGuesses));
+        _possibleGuesses = new HashSet<string>(possibleGuesses);
         _attempts = new List<WordlessAttempt>(MaxAttempts);
         _word = ChopWord(word);
     }
@@ -59,8 +59,24 @@ public class WordlessBoard
         return storage;
     }
 
-    private void ProcessAttemptSimple(WordlessAttempt currentAttempt)
+    public WordlessAttempt MakeGuess(string guess)
     {
+        var currentAttempt = new WordlessAttempt(guess);
+
+        if (_attempts.Count == MaxAttempts)
+        {
+            currentAttempt.Status = AttemptStatus.Error;
+            return currentAttempt;
+        }
+
+        if (!_possibleWords.Contains(currentAttempt.Guess) &&
+            !_possibleGuesses.Contains(currentAttempt.Guess))
+        {
+            currentAttempt.Status = AttemptStatus.GuessNotAllowed;
+            return currentAttempt;
+        }
+
+        currentAttempt.Status = AttemptStatus.ValidAttempt;
         var counts = new Dictionary<char, int>();
 
         foreach (var (key, value) in _word)
@@ -95,72 +111,6 @@ public class WordlessBoard
                 counts[currentAttempt.Guess[i]] -= 1;
             }
         }
-    }
-
-    private void ProcessAttemptChopped(WordlessAttempt currentAttempt)
-    {
-        var choppedGuess = ChopWord(currentAttempt.Guess);
-
-        foreach (var guessCharacter in choppedGuess)
-        {
-            if (!_word.TryGetValue(guessCharacter.Key, out var wordPositions))
-            {
-                continue;
-            }
-            
-            var charCount = wordPositions.Count;
-
-            foreach (var entry in guessCharacter.Value)
-            {
-                if (!wordPositions.Contains(entry))
-                {
-                    continue;
-                }
-                
-                currentAttempt.SetCharacterResult(entry, CharacterState.Correct);
-                --charCount;
-            }
-
-            if (charCount == 0)
-            {
-                continue;
-            }
-
-            foreach (var entry in guessCharacter.Value)
-            {
-                if (wordPositions.Contains(entry))
-                {
-                    continue;
-                }
-                
-                currentAttempt.SetCharacterResult(entry, CharacterState.PresentWrongSpot);
-                if (--charCount == 0)
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    public WordlessAttempt MakeGuess(string guess)
-    {
-        var currentAttempt = new WordlessAttempt(guess);
-
-        if (_attempts.Count == MaxAttempts)
-        {
-            currentAttempt.Status = AttemptStatus.Error;
-            return currentAttempt;
-        }
-
-        if (!_possibleGuesses.Contains(currentAttempt.Guess))
-        {
-            currentAttempt.Status = AttemptStatus.GuessNotAllowed;
-            return currentAttempt;
-        }
-
-        currentAttempt.Status = AttemptStatus.ValidAttempt;
-        ProcessAttemptSimple(currentAttempt);
-        //ProcessAttemptChopped(currentAttempt);
 
         _attempts.Add(currentAttempt);
         return currentAttempt;
