@@ -1,7 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Dynamic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Wordless;
 const ConsoleColor defaultForeColor = ConsoleColor.White;
 const ConsoleColor defaultBackColor = ConsoleColor.Black;
@@ -31,7 +28,7 @@ Console.WriteLine("LET'S PLAY");
 
 var success = false;
 
-while (board.History.Length < maxAttempts)
+while (board.History.Length < maxAttempts && !success)
 {
     Console.Write("Enter your guess:");
     var guess = Console.ReadLine();
@@ -64,23 +61,11 @@ while (board.History.Length < maxAttempts)
 
     if (currentAttempt.Result.All(x => x.State == CharacterState.Correct))
     {
-        success = true;
-
-        for (var att = board.History.Length; att < maxAttempts; att++)
-        {
-            Console.BackgroundColor = ConsoleColor.Green;
-            for (var i=0; i<guess.Length; i++)
-            {
-                Console.Write(" ");
-            }
-            Console.WriteLine();
-        }
-
-        Console.BackgroundColor = defaultBackColor;
-        break;
+        success = true;  
     }
 }
 
+Console.BackgroundColor = defaultBackColor;
 Console.WriteLine(success
     ? $"Congratulations! You solved it in {board.History.Length} tries!"
     : $"Better luck next time! The word was {board.Word}");
