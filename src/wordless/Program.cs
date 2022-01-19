@@ -44,6 +44,18 @@ while (board.History.Length < maxAttempts)
     
     var currentAttempt = board.MakeGuess(guess);
 
+    if (currentAttempt.Status == AttemptStatus.GuessNotAllowed)
+    {
+        Console.WriteLine("{0} is not a valid guess", currentAttempt.Guess);
+        continue;
+    }
+
+    if (currentAttempt.Status == AttemptStatus.Error)
+    {
+        Console.WriteLine("There was an error processing your guess. Sorry about that");
+        continue;
+    }
+
     foreach (var attempt in board.History)
     {
         PrintResult(attempt);
@@ -71,7 +83,7 @@ while (board.History.Length < maxAttempts)
 
 Console.WriteLine(success
     ? $"Congratulations! You solved it in {board.History.Length} tries!"
-    : $"Better luck next time! The word was {word}");
+    : $"Better luck next time! The word was {board.Word}");
 
 static int GetNumericInputFromUser(int defaultValue, string prompt)
 {

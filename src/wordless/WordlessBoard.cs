@@ -7,6 +7,7 @@ public class WordlessBoard
     private readonly Dictionary<char, HashSet<int>> _word;
     private readonly List<WordlessAttempt> _attempts;
     public int MaxAttempts { get; private set; }
+    public string Word { get; }
     
     public WordlessBoard(IReadOnlyList<string> possibleWords, 
         IEnumerable<string> possibleGuesses, 
@@ -36,6 +37,7 @@ public class WordlessBoard
 
         _possibleGuesses = new HashSet<string>(possibleGuesses);
         _attempts = new List<WordlessAttempt>(MaxAttempts);
+        Word = word;
         _word = ChopWord(word);
     }
 
